@@ -17,9 +17,11 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'email'     => fake()->unique()->safeEmail(),
-            'mobile'    => fake()->optional()->e164PhoneNumber(),
-            'password'  => fake()->optional()->password(),
+            'email'         => fake()->unique()->safeEmail(),
+            'mobile'        => fake()->optional()->e164PhoneNumber(),
+            'password'      => fake()->optional()->password(),
+            'created_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-5 days', '-3 days')->getTimestamp()),
+            'updated_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-3 days', '-1 days')->getTimestamp()),
         ];
     }
 }

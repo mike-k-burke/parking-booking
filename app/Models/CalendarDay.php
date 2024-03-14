@@ -20,8 +20,8 @@ use Illuminate\Support\Carbon;
  * @property boolean is_weekend
  * @property integer available_spaces
  * @property integer price
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property Carbon created_at
+ * @property Carbon updated_at
  */
 class CalendarDay extends Model
 {

@@ -2,13 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\Customer;
+use App\Models\Booking;
+use App\Models\CalendarDay;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Booking>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BookingDay>
  */
-class BookingFactory extends Factory
+class BookingDayFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,9 +19,12 @@ class BookingFactory extends Factory
      */
     public function definition(): array
     {
+        $day = CalendarDay::where('date', '>', Carbon::now()->startOfDay())->inRandomOrder()->first();
+
         return [
-            'customer_id'   => Customer::factory(),
-            'registration'  => fake()->unique()->regexify('[A-Z]{2}\d{2}[A-Z]{3}'),
+            'booking_id'    => Booking::factory(),
+            'date'          => $day->date,
+            'price'         => $day->price,
             'created_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-5 days', '-3 days')->getTimestamp()),
             'updated_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-3 days', '-1 days')->getTimestamp()),
         ];
