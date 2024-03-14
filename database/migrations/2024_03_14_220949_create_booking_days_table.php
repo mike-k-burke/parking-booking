@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('booking_days', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('date')->constrained('calendar_days', 'date');
+            $table->date('date')->constrained('calendar_days', 'date');
             $table->unsignedInteger('price');
             $table->timestamps();
 
