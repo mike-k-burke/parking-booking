@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,6 +23,10 @@ use Illuminate\Support\Carbon;
  * @property integer price
  * @property Carbon created_at
  * @property Carbon updated_at
+ *
+ * @property BookingDays[]|Collection bookingDays
+ *
+ * @property-read boolean hasFreeSpaces
  */
 class CalendarDay extends Model
 {
@@ -48,5 +53,15 @@ class CalendarDay extends Model
             'available_spaces'  => 'integer',
             'price'             => 'integer',
         ];
+    }
+
+    public function bookingDays(): HasMany
+    {
+        return $this->hasMany(BookingDay::class, 'date', 'date')->orderBy('created_at');
+    }
+
+    public function getHasFreeSpacesAttribute(): bool
+    {
+        return $this->bookingDays->count() < $this->available_spaces;
     }
 }

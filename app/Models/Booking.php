@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  * *
  * @property-read Carbon startDate
  * @property-read Carbon endDate
- * @property-read integer price
+ * @property-read int price
  */
 class Booking extends Model
 {
@@ -67,7 +67,7 @@ class Booking extends Model
         return $this->bookingDays->last()->date;
     }
 
-    public function getPriceAttribute():? integer
+    public function getPriceAttribute():? int
     {
         if ($this->bookingDays->isEmpty()) {
             return null;
