@@ -24,9 +24,10 @@ use Illuminate\Support\Carbon;
  * @property Carbon created_at
  * @property Carbon updated_at
  *
- * @property BookingDays[]|Collection bookingDays
+ * @property BookingDays[]|Collection booking_days
  *
- * @property-read boolean hasFreeSpaces
+ * @property-read boolean has_free_spaces
+ * @method boolean hasFreeSpaces(int $excludeBookingId = null)
  */
 class CalendarDay extends Model
 {
@@ -39,6 +40,10 @@ class CalendarDay extends Model
     protected $fillable = [
         'available_spaces',
         'price',
+    ];
+
+    protected $appends = [
+        'has_free_spaces',
     ];
 
     protected function casts(): array
@@ -55,13 +60,23 @@ class CalendarDay extends Model
         ];
     }
 
-    public function bookingDays(): HasMany
+    public function booking_days(): HasMany
     {
         return $this->hasMany(BookingDay::class, 'date', 'date')->orderBy('created_at');
     }
 
     public function getHasFreeSpacesAttribute(): bool
     {
-        return $this->bookingDays->count() < $this->available_spaces;
+        return $this->hasFreeSpaces();
+    }
+
+    public function hasFreeSpaces(int $excludeBookingId = null): bool
+    {
+        $bookedDays = $this->booking_days();
+        if ($excludeBookingId !== null) {
+            $bookedDays = $bookedDays->where('booking_id', '!=', $excludeBookingId);
+        }
+
+        return $bookedDays->count() < $this->available_spaces;
     }
 }

@@ -21,11 +21,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon created_at
  * @property Carbon updated_at
  *
- * @property BookingDays[]|Collection bookingDays
+ * @property BookingDays[]|Collection booking_days
  * @property Customer customer
  * *
- * @property-read Carbon startDate
- * @property-read Carbon endDate
+ * @property-read Carbon start
+ * @property-read Carbon end
  * @property-read int price
  */
 class Booking extends Model
@@ -38,10 +38,16 @@ class Booking extends Model
     ];
 
     protected $with = [
-        'bookingDays'
+        'booking_days'
     ];
 
-    public function bookingDays(): HasMany
+    protected $appends = [
+        'start',
+        'end',
+        'price'
+    ];
+
+    public function booking_days(): HasMany
     {
         return $this->hasMany(BookingDay::class)->orderBy('date');
     }
@@ -51,27 +57,27 @@ class Booking extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function getStartDateAttribute():? Carbon
+    public function getStartAttribute():? Carbon
     {
-        if ($this->bookingDays->isEmpty()) {
+        if ($this->booking_days->isEmpty()) {
             return null;
         }
-        return $this->bookingDays->first()->date;
+        return $this->booking_days->first()->date;
     }
 
-    public function getEndDateAttribute():? Carbon
+    public function getEndAttribute():? Carbon
     {
-        if ($this->bookingDays->isEmpty()) {
+        if ($this->booking_days->isEmpty()) {
             return null;
         }
-        return $this->bookingDays->last()->date;
+        return $this->booking_days->last()->date;
     }
 
     public function getPriceAttribute():? int
     {
-        if ($this->bookingDays->isEmpty()) {
+        if ($this->booking_days->isEmpty()) {
             return null;
         }
-        return $this->bookingDays->sum('price');
+        return $this->booking_days->sum('price');
     }
 }

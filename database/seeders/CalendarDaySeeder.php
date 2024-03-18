@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CalendarDaySeeder extends Seeder
 {
@@ -12,7 +13,7 @@ class CalendarDaySeeder extends Seeder
     public function run(): void
     {
         $startDate  = now()->startOfYear();
-        $endDate    = $startDate->clone()->addYears(3);
+        $endDate    = $startDate->clone()->addYears(6);
 
         $current    = $startDate->clone();
 

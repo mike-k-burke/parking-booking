@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon updated_at
  *
  * @property Booking booking
- * @property CalendarDay calendarDay
+ * @property CalendarDay calendar_day
  */
 class BookingDay extends Model
 {
@@ -33,12 +33,20 @@ class BookingDay extends Model
         'price',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'date' => 'date',
+            'price' => 'integer',
+        ];
+    }
+
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
     }
 
-    public function calendarDay(): BelongsTo
+    public function calendar_day(): BelongsTo
     {
         return $this->belongsTo(CalendarDay::class);
     }

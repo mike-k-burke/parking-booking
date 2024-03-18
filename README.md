@@ -1,66 +1,248 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Parking Booking API
 
-## About Laravel
+This is a simple API for a single parking garage.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+It provides the manager of the garage the ability to:
+* view the details for a day in the calendar, including the number of bookings made
+* manage the number of available parking spaces for each day in the calendar
+* manage the price for a customer to book a parking space for each day in the calendar
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+It provides customers the ability to:
+* check the availability and total price to book for a given date range
+* create a booking for a given date range
+* view the details of a booking
+* edit the date range or vehicle registration on a booking
+* cancel a booking
+* check and amend their stored contact details
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+For simplicity's sake, this API assumes all bookings will be for full day periods. A future extension could break down the bookable period to an hourly, rather than daily, basis.
 
-## Learning Laravel
+I have also realised as I write the documentation that I have assumed that cars can be moved between parking spaces as required for space/availibility requirements, as they would in a valet parking garage. Some sort of entity to represent a single parking space and a refactor of the availability checking system would be required for a parking garage where the customer controls where they park.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## API Reference
 
-## Laravel Sponsors
+#### Get calendar day
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```http
+  GET /api/calendar/${date}
+```
 
-### Premium Partners
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `date`    | `date:Y-m-d` | **Required**. Date of calendar day to fetch |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `date` | `date:Y-m-d` | Date of calendar day   |
+| `available_spaces` | `integer` | Number of total available spaces for the calendar day   |
+| `booked_spaces` | `integer` | Number of booked spaces for the calendar day   |
+| `has_free_spaces` | `boolean` | Is the calendar day free to have a new booking added?   |
+| `price`    | `integer` | Price to book a parking space for the calendar day in pence  |
 
-## Contributing
+#### Get calendar day range
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```http
+  GET /api/calendar/${start}/${end}
+```
 
-## Code of Conduct
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `start`    | `date:Y-m-d` | **Required**. Start date of calendar day range to fetch |
+| `end`    | `date:Y-m-d` | **Required**. End date of calendar day range to fetch |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `data` | `array` | Array of calendar days in selected range   |
+| `data[][date]` | `date:Y-m-d` | Date of calendar day   |
+| `data[][available_spaces]` | `integer` | Number of total available spaces for the calendar day   |
+| `data[][booked_spaces]` | `integer` | Number of booked spaces for the calendar day   |
+| `data[][has_free_spaces]` | `boolean` | Is the calendar day free to have a new booking added?   |
+| `data[][price]`    | `integer` | Price to book a parking space for the calendar day in pence  |
+| `meta` | `array` | Array of data referencing the range as a whole   |
+| `meta[][start]` | `date:Y-m-d` | Date of the first calendar day in the range  |
+| `meta[][end]` | `date:Y-m-d` | Date of the last calendar day in the range  |
+| `meta[][is_available]` | `boolean` | Is there a free parking space to book for the whole range?  |
+| `meta[][price]` | `integer` | Price to book a parking space for the whole range of calendar days in pence |
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### Update prices for calendar days
 
-## License
+```http
+  POST /api/calendar/price
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `price`   | `integer` | **Required**. Price to update days to in pence, minimum 0 |
+| `start`   | `date:Y-m-d` | **Required**. Start date of calendar day range to update |
+| `end`    | `date:Y-m-d` | **Required**. End date of calendar day range to update |
+| `exclude_weekends` | `boolean` | Exclude weekend days from the update? |
+| `exclude_weekdays` | `boolean` | Exclude weekday days from the update? |
+| `exclude_days` | `array[date:Y-m-d]` | Array of any explicit dates to exclude from the update |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `success` | `boolean` | Was update successful?   |
+
+#### Update available spaces for calendar days
+
+```http
+  POST /api/calendar/spaces
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `available_spaces` | `integer` | **Required**. Number of available spaces to update days to, minimum 0 |
+| `start`   | `date:Y-m-d` | **Required**. Start date of calendar day range to update |
+| `end`    | `date:Y-m-d` | **Required**. End date of calendar day range to update |
+| `exclude_weekends` | `boolean` | Exclude weekend days from the update? |
+| `exclude_weekdays` | `boolean` | Exclude weekday days from the update? |
+| `exclude_days` | `array[date:Y-m-d]` | Array of any explicit dates to exclude from the update |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `success` | `boolean` | Was update successful?   |
+
+#### Create booking
+
+```http
+  POST /api/bookings
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `registration` | `string` | **Required**. Registration of vehicle for the booking |
+| `start`   | `date:Y-m-d` | **Required**. Start date of booking |
+| `end`    | `date:Y-m-d` | **Required**. End date of booking |
+| `email` | `string` | **Required**. Email address of the customer |
+| `mobile` | `string` | Optional contact number of the customer |
+| `password` | `string` | Optional password to register the customer as a user |
+| `password_confirmation` | `string` | If a password is passed, must be present and ientical to the password |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `id` | `integer` | Id of booking   |
+| `registration` | `string` | Registration of vehicle for the booking   |
+| `customer`      | `array` | Booking customer details |
+| `customer[id]`      | `integer` | Id of customer |
+| `customer[email]` | `string` | Email address of the customer |
+| `customer[mobile]` | `string` | Contact number of the customer |
+| `start` | `date:Y-m-d` | Start date of booking |
+| `end` | `date:Y-m-d` | End date of booking |
+| `price` | `integer` | Price of booking in pence  |
+| `created_at`  | `timestamp` | Date/time when booking created  |
+| `updated_at` | `timestamp` | Date/time when booking last updated |
+| `booking_days` | `array` | Array of the days making up the booking |
+| `booking_days[][date]` | `date:Y-m-d` | Date of the booking day |
+| `booking_days[][price]` | `integer` | Price of the booking day |
+| `booking_days[][created_at]`  | `timestamp` | Date/time when booking day created  |
+| `booking_days[][updated_at]` | `timestamp` | Date/time when booking day last updated |
+
+#### View booking details
+
+```http
+  GET /api/bookings/${id}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `id`      | `integer` | **Required**. Id of booking |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `id` | `integer` | Id of booking   |
+| `registration` | `string` | Registration of vehicle for the booking   |
+| `customer`      | `array` | Booking customer details |
+| `customer[id]`      | `integer` | Id of customer |
+| `customer[email]` | `string` | Email address of the customer |
+| `customer[mobile]` | `string` | Contact number of the customer |
+| `start` | `date:Y-m-d` | Start date of booking |
+| `end` | `date:Y-m-d` | End date of booking |
+| `price` | `integer` | Price of booking in pence  |
+| `created_at`  | `timestamp` | Date/time when booking created  |
+| `updated_at` | `timestamp` | Date/time when booking last updated |
+| `booking_days` | `array` | Array of the days making up the booking |
+| `booking_days[][date]` | `date:Y-m-d` | Date of the booking day |
+| `booking_days[][price]` | `integer` | Price of the booking day |
+| `booking_days[][created_at]`  | `timestamp` | Date/time when booking day created  |
+| `booking_days[][updated_at]` | `timestamp` | Date/time when booking day last updated |
+
+#### Amend booking details
+
+```http
+  PUT /api/bookings/${id}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `id`      | `integer` | **Required**. Id of booking |
+| `registration` | `string` | Optional new registration of vehicle for the booking |
+| `start`   | `date:Y-m-d` | Optional new start date of booking, if provided, end date must also be provided |
+| `end`    | `date:Y-m-d` | Optional new end date of booking, if provided, start date must also be provided |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `id` | `integer` | Id of booking   |
+| `registration` | `string` | Registration of vehicle for the booking   |
+| `customer`      | `array` | Booking customer details |
+| `customer[id]`      | `integer` | Id of customer |
+| `customer[email]` | `string` | Email address of the customer |
+| `customer[mobile]` | `string` | Contact number of the customer |
+| `start` | `date:Y-m-d` | Start date of booking |
+| `end` | `date:Y-m-d` | End date of booking |
+| `price` | `integer` | Price of booking in pence  |
+| `created_at`  | `timestamp` | Date/time when booking created  |
+| `updated_at` | `timestamp` | Date/time when booking last updated |
+| `booking_days` | `array` | Array of the days making up the booking |
+| `booking_days[][date]` | `date:Y-m-d` | Date of the booking day |
+| `booking_days[][price]` | `integer` | Price of the booking day |
+| `booking_days[][created_at]`  | `timestamp` | Date/time when booking day created  |
+| `booking_days[][updated_at]` | `timestamp` | Date/time when booking day last updated |
+
+#### Cancel booking
+
+```http
+  DELETE /api/bookings/${id}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `id`      | `integer` | **Required**. Id of booking |
+
+#### View customer details
+
+```http
+  GET /api/customers/${id}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `id`      | `integer` | **Required**. Id of customer |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `id`      | `integer` | Id of customer |
+| `email` | `string` | Email address of the customer |
+| `mobile` | `string` | Contact number of the customer |
+
+#### Amend customer details
+
+```http
+  PUT /api/customers/${id}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `id`      | `integer` | **Required**. Id of customer |
+| `email` | `string` | Optional new email address of the customer |
+| `mobile` | `string` | Optional new contact number of the customer |
+| `password` | `string` | Optional new password of the customer |
+
+| Response Field | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `id`      | `integer` | Id of customer |
+| `email` | `string` | Email address of the customer |
+| `mobile` | `string` | Contact number of the customer |

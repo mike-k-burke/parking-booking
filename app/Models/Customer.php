@@ -37,6 +37,13 @@ class Customer extends Model
         'password',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class)->orderBy('date');
