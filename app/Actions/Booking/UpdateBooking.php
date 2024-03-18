@@ -25,6 +25,10 @@ class UpdateBooking
     {
         $booking = $this->showAction->handle($id);
 
+        if ($booking->start->isBefore(now()->startOfDay())) {
+            throw new InvalidArgumentException('Cannot update active or historical bookings');
+        }
+
         DB::beginTransaction();
 
         if ($registration !== null) {
@@ -44,6 +48,13 @@ class UpdateBooking
         }
         if ($end === null) {
             $end = $booking->end;
+        }
+
+        if ($start->isBefore(now()->startOfDay())) {
+            throw new InvalidArgumentException('Start date must not be in the past');
+        }
+        if ($start->isAfter($end)) {
+            throw new InvalidArgumentException('Start date must not be after end date');
         }
 
         /**

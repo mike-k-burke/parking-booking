@@ -26,7 +26,11 @@ class CalendarDayController extends Controller
         if (date('Y-m-d', strtotime($date)) !== $date) {
             throw (new ModelNotFoundException)->setModel(CalendarDay::class, $date);
         }
-        return response()->json(new CalendarDayResource($action->handle(Carbon::createFromFormat('Y-m-d', $date))), Response::HTTP_OK);
+        $calendarDay = $action->handle(Carbon::createFromFormat('Y-m-d', $date));
+        if ($calendarDay === null) {
+            throw (new ModelNotFoundException)->setModel(CalendarDay::class, $date);
+        }
+        return response()->json(new CalendarDayResource($calendarDay), Response::HTTP_OK);
     }
 
     public function getRange(string $start, string $end, FetchCalendarDayRange $action)
@@ -45,6 +49,10 @@ class CalendarDayController extends Controller
             Carbon::createFromFormat('Y-m-d', $start)->startOfDay(),
             Carbon::createFromFormat('Y-m-d', $end)->startOfDay()
         );
+
+        if ($calendarDays->count() === 0) {
+            throw (new ModelNotFoundException)->setModel(CalendarDay::class);
+        }
 
         return response()->json(new CalendarDayCollection($calendarDays), Response::HTTP_OK);
     }

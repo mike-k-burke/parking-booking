@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Booking;
 
+use App\Actions\Booking\ShowBooking;
+use App\Models\Booking;
 use App\Rules\DateAvailable;
 use App\Rules\DateRangeAvailable;
 use Illuminate\Foundation\Http\FormRequest;
@@ -46,8 +48,16 @@ class UpdateBookingRequest extends FormRequest
     {
         return [
             'registration'  => 'sometimes|string|max:15',
-            'start'         => ['required_with:end', 'date_format:Y-m-d', 'after:yesterday', 'before_or_equal:end', new DateAvailable],
-            'end'           => ['required_with:start', 'date_format:Y-m-d', new DateRangeAvailable],
+            'start'         => ['bail', 'required_with:end', 'date_format:Y-m-d', 'after_or_equal:today', 'before_or_equal:end', new DateAvailable],
+            'end'           => ['bail', 'required_with:start', 'date_format:Y-m-d', new DateRangeAvailable],
+            'booking'       => [
+                function ($attribute, $value, $fail) {
+                    $booking = resolve(ShowBooking::class)->handle($value);
+                    if ($booking->start->isBefore(now()->startOfDay())) {
+                        $fail('This booking has already started, you cannot amend an active or historical booking');
+                    }
+                }
+            ],
         ];
     }
 

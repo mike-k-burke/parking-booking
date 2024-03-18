@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  *
  * @property BookingDays[]|Collection booking_days
  *
+ * @property-read integer booked_spaces
  * @property-read boolean has_free_spaces
  * @method boolean hasFreeSpaces(int $excludeBookingId = null)
  */
@@ -38,11 +39,18 @@ class CalendarDay extends Model
     public $incrementing    = false;
 
     protected $fillable = [
+        'date',
+        'year',
+        'month',
+        'day',
+        'day_of_week',
+        'is_weekend',
         'available_spaces',
         'price',
     ];
 
     protected $appends = [
+        'booked_spaces',
         'has_free_spaces',
     ];
 
@@ -63,6 +71,11 @@ class CalendarDay extends Model
     public function booking_days(): HasMany
     {
         return $this->hasMany(BookingDay::class, 'date', 'date')->orderBy('created_at');
+    }
+
+    public function getBookedSpacesAttribute(): int
+    {
+        return $this->booking_days()->count();
     }
 
     public function getHasFreeSpacesAttribute(): bool

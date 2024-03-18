@@ -26,7 +26,7 @@ class StoreBookingRequest extends FormRequest
          * Strip any whitespace from the submitted email
          */
         if ($this->input('email') !== null) {
-            $this->merge(['email' => preg_replace('/\s/', '', $this->input('mobile'))]);
+            $this->merge(['email' => preg_replace('/\s/', '', $this->input('email'))]);
         }
     }
 
@@ -39,9 +39,9 @@ class StoreBookingRequest extends FormRequest
     {
         return [
             'registration'  => 'required|string|max:15',
-            'start'         => ['required', 'date_format:Y-m-d', 'after:yesterday', 'before_or_equal:end', new DateAvailable],
-            'end'           => ['required', 'date_format:Y-m-d', new DateRangeAvailable],
-            'email'         => 'required|string|email',
+            'start'         => ['bail', 'required', 'date_format:Y-m-d', 'after_or_equal:today', 'before_or_equal:end', new DateAvailable],
+            'end'           => ['bail', 'required', 'date_format:Y-m-d', new DateRangeAvailable],
+            'email'         => 'required|string|email:rfc',
             'mobile'        => 'sometimes|string',
             'password'      => 'sometimes|string|min:6|confirmed',
         ];

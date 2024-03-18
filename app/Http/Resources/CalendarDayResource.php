@@ -18,7 +18,7 @@ class CalendarDayResource extends JsonResource
         return [
             'date'              => $this->date->format('Y-m-d'),
             'available_spaces'  => $this->available_spaces,
-            'booked_spaces'     => $this->booking_days()->count(),
+            'booked_spaces'     => $this->booked_spaces,
             'has_free_spaces'   => $this->has_free_spaces,
             'price'             => $this->price,
         ];

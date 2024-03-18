@@ -20,6 +20,7 @@ For simplicity's sake, this API assumes all bookings will be for full day period
 
 I have also realised as I write the documentation that I have assumed that cars can be moved between parking spaces as required for space/availibility requirements, as they would in a valet parking garage. Some sort of entity to represent a single parking space and a refactor of the availability checking system would be required for a parking garage where the customer controls where they park.
 
+The API has a simple authentication system using laravel sanctum at the moment, with authentication endpoints intended for admin users to register and generate access tokens. The option is also there to add SPA authentication for the customer facing system.
 
 
 ## API Reference

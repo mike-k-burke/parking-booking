@@ -2,7 +2,7 @@
 
 namespace App\Actions\CalendarDay;
 
-use App\Actions\CalendarDays\ShowCalendarDay;
+use App\Actions\CalendarDay\ShowCalendarDay;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 

@@ -7,8 +7,8 @@ use Carbon\Carbon;
 
 class ShowCalendarDay
 {
-    public function handle(Carbon $date): CalendarDay
+    public function handle(Carbon $date):? CalendarDay
     {
-        return CalendarDay::query()->findOrFail($date->startOfDay());
+        return CalendarDay::query()->find($date->startOfDay());
     }
 }

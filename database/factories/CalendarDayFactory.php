@@ -28,8 +28,8 @@ class CalendarDayFactory extends Factory
             'is_weekend'        => $date->isWeekend(),
             'available_spaces'  => fake()->numberBetween(5, 20),
             'price'             => fake()->numberBetween(2000, 10000),
-            'created_at'        => Carbon::createFromTimestamp(fake()->dateTimeBetween('-5 days', '-3 days')->getTimestamp()),
-            'updated_at'        => Carbon::createFromTimestamp(fake()->dateTimeBetween('-3 days', '-1 days')->getTimestamp()),
+            'created_at'        => now(),
+            'updated_at'        => now(),
         ];
     }
 }

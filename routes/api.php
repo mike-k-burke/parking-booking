@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CalendarDayController;
+use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function() {
@@ -19,5 +20,5 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('calendar/price', [CalendarDayController::class, 'updatePrice'])->name('calendar.update.price');
 
     Route::resource('bookings', BookingController::class)->only('show', 'store', 'update', 'destroy');
-    Route::resource('customers', BookingController::class)->only('show', 'update');
+    Route::resource('customers', CustomerController::class)->only('show', 'update');
 });

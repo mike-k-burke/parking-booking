@@ -19,14 +19,14 @@ class BookingDayFactory extends Factory
      */
     public function definition(): array
     {
-        $day = CalendarDay::where('date', '>', Carbon::now()->startOfDay())->inRandomOrder()->first();
+        $day = CalendarDay::where('date', '>', now()->startOfDay())->inRandomOrder()->first();
 
         return [
             'booking_id'    => Booking::factory(),
             'date'          => $day->date,
             'price'         => $day->price,
-            'created_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-5 days', '-3 days')->getTimestamp()),
-            'updated_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-3 days', '-1 days')->getTimestamp()),
+            'created_at'    => now(),
+            'updated_at'    => now(),
         ];
     }
 }

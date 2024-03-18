@@ -2,18 +2,16 @@
 
 namespace App\Rules;
 
-use App\Actions\Booking\ShowBooking;
 use App\Actions\CalendarDay\ShowCalendarDay;
-use App\Models\Booking;
 use App\Models\CalendarDay;
 use Carbon\CarbonPeriod;
-use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Closure;
 
-class DateRangeAvailable implements ValidationRule, DataAwareRule
+class EditingDateRangeSpaceCheck implements ValidationRule, DataAwareRule
 {
     protected $data = [];
 
@@ -29,13 +27,8 @@ class DateRangeAvailable implements ValidationRule, DataAwareRule
      *
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
-    public function validate(string $attribute, mixed $value, Closure $fail): void
+    public function validate(string $attribute, mixed $value, Closure $fail, ): void
     {
-        $editBooking = Arr::get($this->data, 'booking');
-        if ($editBooking !== null) {
-            /** @var Booking */
-            $editBooking = resolve(ShowBooking::class)->handle($editBooking);
-        }
         $start  = Arr::get($this->data, 'start');
         $end    = Arr::get($this->data, 'end');
 
@@ -54,17 +47,12 @@ class DateRangeAvailable implements ValidationRule, DataAwareRule
             $start = null;
         }
 
-        /**
-         * If a booking is being edited and a new start date or end date is not passed, use the existing date off the booking.
-         */
-        if ($editBooking !== null) {
-            $start = $start ?? $editBooking->start;
-            $end = $end ?? $editBooking->end;
-        }
-
         if ($start !== null && $end !== null && !$start->isSameDay($end)) {
+
+            $availableSpaces = Arr::get($this->data, 'available_spaces');
+
             /**
-             * Do not validate the start date itself, that will be validated using the DateAvailable rule for the start field.
+             * Do not validate the start date itself, that will be validated using the EditingDateSpaceCheck rule for the start field.
              */
             $period = CarbonPeriod::create($start->addDay(), $end);
 
@@ -72,8 +60,8 @@ class DateRangeAvailable implements ValidationRule, DataAwareRule
                 /** @var CalendarDay */
                 $calendarDay = resolve(ShowCalendarDay::class)->handle($date);
 
-                if (!$calendarDay || !$calendarDay->hasFreeSpaces($editBooking ? $editBooking->id : null)) {
-                    $fail('No available spaces for the date ' . $date->format('Y-m-d'));
+                if (!$calendarDay || $calendarDay->booked_spaces > $availableSpaces) {
+                    $fail('Unable to adjust available spaces for the date ' . $value . ', too many bookings present');
                 }
             }
         }

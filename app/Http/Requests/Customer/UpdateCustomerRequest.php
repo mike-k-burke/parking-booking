@@ -14,9 +14,9 @@ class UpdateCustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password'  => 'sometimes|string',
             'email'     => 'sometimes|string|email',
             'mobile'    => 'sometimes|nullable|string',
+            'password'  => 'sometimes|string|min:6|confirmed',
         ];
     }
 }

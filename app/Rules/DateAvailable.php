@@ -7,6 +7,7 @@ use App\Models\CalendarDay;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Closure;
 
 class DateAvailable implements ValidationRule, DataAwareRule
@@ -27,13 +28,15 @@ class DateAvailable implements ValidationRule, DataAwareRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail, ): void
     {
-        $editingBooking = Arr::get($this->data, 'booking');
+        if ($value !== null) {
+            $editBooking = Arr::get($this->data, 'booking');
 
-        /** @var CalendarDay */
-        $calendarDay = resolve(ShowCalendarDay::class)->handle(Carbon::createFromFormat('Y-m-d', $value));
+            /** @var CalendarDay */
+            $calendarDay = resolve(ShowCalendarDay::class)->handle(Carbon::createFromFormat('Y-m-d', $value));
 
-        if (!$calendarDay || !$calendarDay->hasFreeSpaces($editingBooking)) {
-            $fail('No available spaces for the date ' . $value);
+            if (!$calendarDay || !$calendarDay->hasFreeSpaces($editBooking)) {
+                $fail('No available spaces for the date ' . $value);
+            }
         }
     }
 }

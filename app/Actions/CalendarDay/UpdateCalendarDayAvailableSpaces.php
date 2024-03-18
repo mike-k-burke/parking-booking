@@ -2,7 +2,7 @@
 
 namespace App\Actions\CalendarDay;
 
-use App\Actions\CalendarDays\ShowCalendarDay;
+use App\Actions\CalendarDay\ShowCalendarDay;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use InvalidArgumentException;
@@ -36,10 +36,9 @@ class UpdateCalendarDayAvailableSpaces
             }
 
             $calendarDay    = $this->showAction->handle($date);
-            $bookedDays     = $calendarDay->booking_days()->count();
 
-            if ($bookedDays > $availableSpaces) {
-                throw new InvalidArgumentException('Unable to adjust available spaces for ' . $calendarDay->date->format('Y-m-d') . 'to ' . $availableSpaces . ', ' . $bookedDays . ' bookings present.');
+            if ($calendarDay->booked_spaces > $availableSpaces) {
+                throw new InvalidArgumentException('Unable to adjust available spaces for ' . $calendarDay->date->format('Y-m-d') . 'to ' . $availableSpaces . ', ' . $calendarDay->booked_spaces . ' bookings present.');
             }
 
             $calendarDay->available_spaces = $availableSpaces;

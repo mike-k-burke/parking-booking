@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\CalendarDay;
 
+use App\Rules\DateExists;
+use App\Rules\DateRangeExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 
@@ -16,8 +18,8 @@ class UpdatePriceRequest extends FormRequest
     {
         return [
             'price'             => 'required|integer|min:0',
-            'start'             => ['required', 'date_format:Y-m-d', 'after:yesterday', 'before_or_equal:end'],
-            'end'               => ['required', 'date_format:Y-m-d'],
+            'start'             => ['bail', 'required', 'date_format:Y-m-d', 'after_or_equal:today', 'before_or_equal:end', new DateExists],
+            'end'               => ['bail', 'required', 'date_format:Y-m-d', new DateRangeExists],
             'exclude_days'      => 'sometimes|array',
             'exclude_days.*'    => 'date_format:Y-m-d',
             'exclude_weekends'  => 'sometimes|boolean',

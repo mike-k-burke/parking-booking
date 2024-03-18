@@ -25,8 +25,8 @@ class BookingFactory extends Factory
         return [
             'customer_id'   => Customer::factory(),
             'registration'  => fake()->unique()->regexify('[A-Z]{2}\d{2}[A-Z]{3}'),
-            'created_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-5 days', '-3 days')->getTimestamp()),
-            'updated_at'    => Carbon::createFromTimestamp(fake()->dateTimeBetween('-3 days', '-1 days')->getTimestamp()),
+            'created_at'    => now(),
+            'updated_at'    => now(),
         ];
     }
 
@@ -46,18 +46,12 @@ class BookingFactory extends Factory
         });
     }
 
-    /**
-     * Undocumented function
-     *
-     * @param integer $dayCount
-     * @return Collection
-     */
     protected function getFreeDays($dayCount = 1): Collection
     {
         do {
-            $startDay = CalendarDay::where('date', '>', Carbon::now()->startOfDay())->inRandomOrder()->first();
+            $startDay = CalendarDay::where('date', '>', now()->startOfDay())->inRandomOrder()->first();
             $days = CalendarDay::where('date', '>=', $startDay->date)->orderBy('date')->take($dayCount)->get();
-            $days->filter(fn (CalendarDay $day) => $day->hasFreeSpaces);
+            $days->filter(fn (CalendarDay $day) => $day->has_free_spaces);
         } while ($days->count() !== $dayCount);
 
         return $days;

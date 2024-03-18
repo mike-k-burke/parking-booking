@@ -32,17 +32,30 @@ class DateRangeExists implements ValidationRule, DataAwareRule
         $start  = Arr::get($this->data, 'start');
         $end    = Arr::get($this->data, 'end');
 
-        if ($start !== $end) {
+        /**
+         * Confirm that the data passed in the date fields is of the correct format.
+         * Necessary because we are using the start date field while validating the end date and 'bail' doesn't work in this case.
+         */
+        if ($start !== null && date('Y-m-d', strtotime($start)) === $start) {
+            $start = Carbon::createFromFormat('Y-m-d', $start)->startOfDay();
+        } else {
+            $start = null;
+        }
+        if ($end !== null && date('Y-m-d', strtotime($end)) === $end) {
+            $end = Carbon::createFromFormat('Y-m-d', $end)->startOfDay();
+        } else {
+            $start = null;
+        }
+
+        if ($start !== null && $end !== null && !$start->isSameDay($end)) {
             /**
              * Do not validate the start date itself, that will be validated using the DateExists rule for the start field.
              */
-            $start  = Carbon::createFromFormat('Y-m-d', $start)->startOfDay()->addDay();
-            $end    = Carbon::createFromFormat('Y-m-d', $end)->startOfDay();
-            $period = CarbonPeriod::create($start, $end);
+            $period = CarbonPeriod::create($start->addDay(), $end);
 
             foreach ($period as $date) {
                 /** @var CalendarDay */
-                $calendarDay = resolve(ShowCalendarDay::class)->handle(Carbon::createFromFormat('Y-m-d', $date));
+                $calendarDay = resolve(ShowCalendarDay::class)->handle($date);
 
                 if (!$calendarDay) {
                     $fail('No calendar found record for date ' . $date->format('Y-m-d'));
